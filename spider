@@ -1,0 +1,49 @@
+import re
+import urllib.request
+import urllib
+from bs4 import BeautifulSoup
+
+def getHtml(url):
+
+    try:
+        req=urllib.request.Request(url)
+        response=urllib.request.urlopen(req)
+        #print(response.getcode())
+        #print(len(response.read()))
+        data=response.read()
+        #print(response.read())
+        return data
+    except Exception as e:
+        if hasattr(e,'code'):
+            print(e.code)
+        if hasattr(e,'reason'):
+            print(e.reason+'   这里抓取失败')
+ 
+def getImg(html):
+    soup=BeautifulSoup(html,'html.parser')
+    imglist=soup.find_all('a',href=re.compile(r'https://www.douban.com/photos/'))
+    count=1
+    for img in imglist:
+        print(img.get_text())
+        image=getHtml(img)
+        f = open('e:/aima-python-master-py3/picture/'+str(count)+'.jpg',"wb")
+        f.write(image)
+        count+=1
+        f.close()
+    
+        '''
+        with open('%s.jpg'%count,'wb') as fp:
+            fp.write(image)
+            count+=1
+            print("图片"+count+"下载完成!")
+        '''
+        #urllib.request.urlretrieve(imgurl,'E:\\aima-python-master-py3\\picture\\%s.jpg'%count)
+
+    return
+
+url='https://www.douban.com/photos/album/1642737418/?start=0'
+html=getHtml(url)
+#response=urllib.request.urlopen(url)
+#print(response.read())
+getImg(html)
+       
