@@ -1,3 +1,5 @@
+# 能够抓取60张小图
+
 import urllib.request
 import urllib
 from bs4 import BeautifulSoup
