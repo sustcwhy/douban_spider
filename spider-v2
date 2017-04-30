@@ -1,0 +1,54 @@
+import urllib.request
+import urllib
+from bs4 import BeautifulSoup
+
+def getHtml(url):
+
+    try:
+        req=urllib.request.Request(url)
+        response=urllib.request.urlopen(req)
+        #print(response.getcode())
+        #print(len(response.read()))
+        data=response.read()
+        #print(response.read())
+        return data
+    except Exception as e:
+        if hasattr(e,'code'):
+            print(e.code)
+        if hasattr(e,'reason'):
+            print(e.reason+'   这里抓取失败')
+ 
+def page_loop(page=0,count=0):
+    
+    url='https://www.douban.com/photos/album/1642737418/?start=%s'%page
+    html=getHtml(url)
+    
+    soup=BeautifulSoup(html,'html.parser')
+    imglist=soup.find_all('div',class_='photo_wrap')
+    for img in imglist:
+        i=img.find('img')
+        image=i.get('src')
+        print(image)
+        count+=1
+        image=getHtml(image)
+        f = open('e:/aima-python-master-py3/picture/'+str(count)+'.jpg',"wb")
+        f.write(image)
+        f.close()
+
+    page+=18
+    print("开始抓取下一页")
+    if (page<60):
+        page_loop(page,count)
+    
+        '''
+        with open('%s.jpg'%count,'wb') as fp:
+            fp.write(image)
+            count+=1
+            print("图片"+count+"下载完成!")
+        '''
+        #urllib.request.urlretrieve(imgurl,'E:\\aima-python-master-py3\\picture\\%s.jpg'%count)
+
+    return
+
+page_loop()        
+        
