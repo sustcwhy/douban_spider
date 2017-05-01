@@ -1,0 +1,75 @@
+# encoding: UTF-8
+# 能抓取60张大图
+
+import urllib.request
+from bs4 import BeautifulSoup
+import os
+
+def getHtml(url):
+
+    try:
+        req=urllib.request.Request(url)
+        response=urllib.request.urlopen(req)
+        #response=urllib.request.urlopen(url)
+        #print(response.getcode())
+        #print(len(response.read()))
+        data=response.read()
+        #print(response.read())
+        return data
+    except Exception as e:
+        if hasattr(e,'code'):
+            print(e.code)
+        if hasattr(e,'reason'):
+            print(e.reason+'   这里抓取失败')
+ 
+def page_loop(page=0,count=0):
+    
+    url='https://www.douban.com/photos/album/1642737418/?start=%s'%page     #目标网站+page
+    html=getHtml(url)
+    
+    soup=BeautifulSoup(html,'html.parser')
+    imglist=soup.find_all('a',class_='photolst_photo')
+    for img in imglist:
+        # 先解析小图的URL
+        image=img.get('href')
+        print(image)
+        count+=1
+        i=getHtml(image)    #重新解析图片的URL
+        # 再解析大图的URL
+        soup=BeautifulSoup(i,'html.parser')
+        j=soup.find('a',class_='mainphoto')
+        j1=j.find('img')
+        j2=j1.get('src')
+        image=getHtml(j2)
+        ''' 下载图片到本地的方法2
+        file_path = "C:/Users/wang-pc/Desktop/CS/picture"
+        file_name = file_path + "/"+str(count)+".jpg"
+        if not os.path.exists(file_name):
+            output = open(file_name, 'wb')
+            output.write(image)
+            output.close()
+            print("Finished download \n")
+        '''
+        f = open('C:/Users/wang-pc/Desktop/CS/Spider/picture/'+str(count)+'.jpg',"wb")   #下载图片到文件夹
+        f.write(image)
+        f.close()
+        
+    page+=18                    #每个网页有18张图片
+    if (page<60):
+        print("开始抓取下一页")
+        page_loop(page,count)
+    else:
+        print("总共抓取了%s张照片"%count)
+    
+        ''' 下载图片到本地的方法2
+        with open('%s.jpg'%count,'wb') as fp:
+            fp.write(image)
+            count+=1
+            print("ͼƬ"+count+"图片下载成功!")
+        '''
+        # 方法3 urllib.request.urlretrieve(imgurl,'E:\\aima-python-master-py3\\picture\\%s.jpg'%count)
+
+    return
+
+page_loop()        
+        
